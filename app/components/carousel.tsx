@@ -88,7 +88,6 @@ const Controls: React.FC<ControlsProps> = ({
 
       <View className="flex-1" />
 
-      {/* Next/Done Button */}
       <TouchableOpacity onPress={isLast ? onDone : onNext} className="p-2">
         <Text className="text-base font-bold text-gray-800">
           {isLast ? "Done" : "Next"}
@@ -142,7 +141,7 @@ export default function MultiStepCarousel({ onDone }: MultiStepCarouselProps) {
   );
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-transparent">
       <FlatList<Slide>
         ref={flatListRef}
         data={slides}
@@ -153,7 +152,7 @@ export default function MultiStepCarousel({ onDone }: MultiStepCarouselProps) {
         pagingEnabled
         onScroll={handleOnScroll}
         scrollEventThrottle={16}
-        className="flex-1"
+        className="flex-1 rounded-lg bg-transparent"
       />
 
       <Pagination data={slides} currentIndex={currentIndex} />
