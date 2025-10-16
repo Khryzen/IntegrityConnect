@@ -1,59 +1,42 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { View } from "@/components/Themed";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Stack } from "expo-router";
+import { useEffect, useState } from "react";
+import { ActivityIndicator } from "react-native";
+import "./../global.css";
 
-import { useColorScheme } from '@/components/useColorScheme';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+const ONBOARDING_KEY = 'has_onboarded';
 
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
+export default function RootLayout(){
+  const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+  useEffect(() =>{
+    const checkOnboardingStatus = async () =>{
+      const status = await AsyncStorage.getItem(ONBOARDING_KEY);
+      setHasOnboarded(status == 'true');
+    };
+    checkOnboardingStatus();
+  }, []);
 
-export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
-  });
-
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
+  if (hasOnboarded === null){
+    return(
+      <View className="flex-1 justify-center">
+        <ActivityIndicator size='large'/>
+      </View>
+    );
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+    <Stack>
+      {hasOnboarded ? (
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+      ) : (
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+      )}
+
+      <Stack.Screen name="modal" options={{ presentation: 'modal' }}/>
+      <Stack.Screen name="+not-found"/>
+    </Stack>
   );
 }
