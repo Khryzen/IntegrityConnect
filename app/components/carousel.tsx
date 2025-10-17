@@ -15,7 +15,7 @@ interface Slide {
   id: string;
   title: string;
   description: string;
-  color: string; 
+  color?: string; 
 }
 
 const { width } = Dimensions.get("window");
